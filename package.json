@@ -1,0 +1,16 @@
+{
+  "name": "ubnt-automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ashley stovall",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "8.0.14",
+    "typed-rest-client": "^1.5.0",
+    "typescript": "^3.5.2"
+  }
+}
