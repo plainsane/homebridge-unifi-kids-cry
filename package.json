@@ -9,8 +9,10 @@
   "author": "ashley stovall",
   "license": "ISC",
   "dependencies": {
+    "typed-rest-client": "^1.5.0"
+  },
+  "dev-dependencies": {
     "@types/node": "8.0.14",
-    "typed-rest-client": "^1.5.0",
     "typescript": "^3.5.2"
   }
 }
