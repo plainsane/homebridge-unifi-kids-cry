@@ -52,41 +52,42 @@ class UnifiKidsCry {
             .on('set', function (value, callback) {
             if (value === Characteristic.LockCurrentState.SECURED) {
                 this.client.blockMac(mac)
-                    .then(() => callback())
+                    .then(() => callback(null))
                     .catch((shit) => {
                     this.log(shit);
                     service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
-                    callback();
+                    callback(null);
                 });
             }
             else if (value === Characteristic.LockCurrentState.UNSECURED) {
                 this.client.unblockMac(mac)
-                    .then(() => callback())
+                    .then(() => callback(null))
                     .catch((shit) => {
                     this.log(shit);
                     service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
-                    callback();
+                    callback(null);
                 });
             }
             else {
                 this.log(`a lock state of ${value} was requested on mac ${mac} but this is unsupported`);
                 this.client.isBlocked(mac).then((current) => {
                     service.getCharacteristic(Characteristic.LockCurentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
-                    callback();
+                    callback(null);
                 }).catch((shit) => {
                     service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
-                    callback();
+                    callback(null, Characteristic.LockCurrentState.UNKNOWN);
                 });
             }
         });
         service.getCharacteristic(Characteristic.LockCurrentState)
             .on('get', function (value, callback) {
             this.client.isBlocked(mac).then((current) => {
+                this.log(`${mac} blocked ${current}`);
                 service.getCharacteristic(Characteristic.LockCurentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
-                callback();
+                callback(null, current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
             }).catch((shit) => {
                 service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
-                callback();
+                callback(null, Characteristic.LockCurrentState.UNKNOWN);
             });
         });
     }
