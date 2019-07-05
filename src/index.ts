@@ -20,7 +20,7 @@ export class UnifiKidsCry {
     client: UBNTClient
     accessories: any[] = []
     constructor(private log: (string) => void, config: config, private api: any) {
-        if (config === undefined) {
+        if (!config) {
             return
         }
         this.log = log

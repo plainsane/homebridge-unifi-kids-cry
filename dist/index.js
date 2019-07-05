@@ -9,7 +9,7 @@ class UnifiKidsCry {
         this.log = log;
         this.api = api;
         this.accessories = [];
-        if (config === undefined) {
+        if (!config) {
             return;
         }
         this.log = log;
