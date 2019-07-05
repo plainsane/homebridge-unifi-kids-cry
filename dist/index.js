@@ -86,11 +86,11 @@ class UnifiKidsCry {
             clazz.log("checking on some shit");
             clazz.client.isBlocked(mac).then((current) => {
                 clazz.log(`${mac} blocked ${current}`);
-                service.getCharacteristic(Characteristic.LockCurentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
+                service.getCharacteristic(Characteristic.LockCurrentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
                 callback(null, current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
             }).catch((shit) => {
                 clazz.log(shit);
-                service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                 callback(null, Characteristic.LockCurrentState.UNKNOWN);
             });
         });
