@@ -1,35 +1,102 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const ubntClient_1 = require("./ubntClient");
-const platform_1 = require("./platform");
 var Accessory, Service, Characteristic, UUIDGen;
-function doit() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let client = new ubntClient_1.UBNTClient('https://ftp:8443', "default", 'api', 'Plainsane8000');
-        let foo = yield client.isBlocked("4c:bb:58:cd:5b:77");
-        console.log(JSON.stringify(foo));
-        //await client.blockMac("4c:bb:58:cd:5b:77")
-        //await client.unblockMac("4c:bb:58:cd:5b:77")
-        return undefined;
-    });
+class UnifiKidsCry {
+    constructor(log, config, api) {
+        this.log = log;
+        this.api = api;
+        this.accessories = [];
+        if (config === undefined) {
+            return;
+        }
+        this.log = log;
+        this.api = api;
+        this.client = new ubntClient_1.UBNTClient(config.endpoint, config.site, config.username, config.password);
+        this.api.on('didFinishLaunching', () => this.finishedLoading(config));
+    }
+    configureAccessory(accessory) {
+        this.accessories.push(accessory);
+        this.bindService(accessory.getService("network"), accessory.context.mac);
+    }
+    finishedLoading(config) {
+        //now del the ole stale shit
+        console.log(JSON.stringify(this.accessories));
+        for (let acc of this.accessories) {
+            if (config.devices.filter((d) => d.mac === acc.context.mac).length === 0) {
+                this.log(`removing ${acc.context.mac}`);
+                this.api.unregisterPlatformAccessories("homebridge-unifi-kids-cry", "UnifiMacBlocker", [acc]);
+            }
+        }
+        //add the new hotness
+        for (let dev of config.devices) {
+            if (this.accessories.filter((t) => t.context.mac === dev.mac).length === 0) {
+                this.createAccessory(dev);
+            }
+        }
+    }
+    createAccessory(dev) {
+        let uuid = UUIDGen.generate(dev.mac);
+        var newAccessory = new Accessory(dev.mac, uuid);
+        newAccessory.context.mac = dev.mac;
+        newAccessory.reachable = true;
+        newAccessory.getService(Service.AccessoryInformation)
+            .setCharacteristic(Characteristic.SerialNumber, dev.mac);
+        let service = newAccessory.addService(Service.LockMechanism, "network");
+        this.bindService(service, dev.mac);
+        this.api.registerPlatformAccessories("homebridge-unifi-kids-cry", "UnifiMacBlocker", [newAccessory]);
+        this.log(`added ${dev.name} at mac ${dev.mac}`);
+    }
+    bindService(service, mac) {
+        service.getCharacteristic(Characteristic.LockTargetState)
+            .on('set', function (value, callback) {
+            if (value === Characteristic.LockCurrentState.SECURED) {
+                this.client.blockMac(mac)
+                    .then(() => callback())
+                    .catch((shit) => {
+                    this.log(shit);
+                    service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                    callback();
+                });
+            }
+            else if (value === Characteristic.LockCurrentState.UNSECURED) {
+                this.client.unblockMac(mac)
+                    .then(() => callback())
+                    .catch((shit) => {
+                    this.log(shit);
+                    service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                    callback();
+                });
+            }
+            else {
+                this.log(`a lock state of ${value} was requested on mac ${mac} but this is unsupported`);
+                this.client.isBlocked(mac).then((current) => {
+                    service.getCharacteristic(Characteristic.LockCurentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
+                    callback();
+                }).catch((shit) => {
+                    service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                    callback();
+                });
+            }
+        });
+        service.getCharacteristic(Characteristic.LockCurrentState)
+            .on('get', function (value, callback) {
+            this.client.isBlocked(mac).then((current) => {
+                service.getCharacteristic(Characteristic.LockCurentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
+                callback();
+            }).catch((shit) => {
+                service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                callback();
+            });
+        });
+    }
 }
+exports.UnifiKidsCry = UnifiKidsCry;
 module.exports = function (homebridge) {
-    console.log("homebridge API version: " + homebridge.version);
-    // Accessory must be created from PlatformAccessory Constructor
     Accessory = homebridge.platformAccessory;
-    // Service and Characteristic are from hap-nodejs
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
     UUIDGen = homebridge.hap.uuid;
-    homebridge.registerPlatform("homebridge-unifi-kids-cry", "UnifiMacBlocker", platform_1.UnifiKidsCry, true);
+    homebridge.registerPlatform("homebridge-unifi-kids-cry", "UnifiMacBlocker", UnifiKidsCry, true);
 };
-doit();
 //# sourceMappingURL=index.js.map

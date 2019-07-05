@@ -1,21 +1,34 @@
 {
-  "name": "ubnt-automation",
+  "name": "homebridge-unifi-kids-cry",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node_modules/typescript/bin/tsc",
+    "clean": "rimraf dist",
+    "homebridge": "npm run build && node_modules/homebridge/bin/homebridge -U homebridge --plugin-path ."
+  },
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "engines": {
+    "node": ">=0.12.0",
+    "homebridge": ">=0.4.50"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:plainsane/homebridge-unifi-kids-cry.git"
   },
   "author": "ashley stovall",
   "license": "ISC",
   "dependencies": {
+    "homebridge": "^0.4.50",
     "typed-rest-client": "^1.5.0"
   },
-  "dev-dependencies": {
+  "devDependencies": {
+    "hap-nodejs": "^0.4.52",
     "@types/node": "8.0.14",
     "typescript": "^3.5.2"
-  },
-  "devDependencies": {
-    "hap-nodejs": "^0.4.52"
   }
 }

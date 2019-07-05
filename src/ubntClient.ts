@@ -10,6 +10,15 @@ interface UBNTMac {
     mac: String
 }
 
+interface UBNTClientData {
+    blocked:boolean
+}
+
+interface UBNTClientResponse {
+    meta: Object
+    data: UBNTClientData[]
+}
+
 const baseOpts:IRequestOptions = {
     ignoreSslError: true
 }
@@ -35,21 +44,23 @@ export class UBNTClient {
         }
         return reqOpts
     }
-    async blockMac(mac:String) {
+    async blockMac(mac:String):Promise<boolean> {
         let data:UBNTMac = {mac: mac}
         let auth = await this.login()
-        return await this.client.create(`/api/s/${this.site}/cmd/stamgr/block-sta`, data, auth)
+        let res = await this.client.create(`/api/s/${this.site}/cmd/stamgr/block-sta`, data, auth)
+        return res.statusCode === 200
     }
 
-    async unblockMac(mac:String) {
+    async unblockMac(mac:String):Promise<boolean> {
         let data:UBNTMac = {mac: mac}
         let auth = await this.login()
-        return await this.client.create(`/api/s/${this.site}/cmd/stamgr/unblock-sta`, data, auth)
+        let res = await this.client.create(`/api/s/${this.site}/cmd/stamgr/unblock-sta`, data, auth)
+        return res.statusCode === 200
     }
 
-    async isBlocked(mac:String) {
-        let data:UBNTMac = {mac: mac}
+    async isBlocked(mac:String):Promise<boolean> {
         let auth = await this.login()
-        return await this.client.update(`/api/s/${this.site}/stat/device`, data, auth)
+        let ret = await this.client.get<UBNTClientResponse>(`/api/s/${this.site}/stat/user/${mac}`, auth)
+        return ret.result.data[0].blocked
     }
 }
