@@ -71,7 +71,7 @@ export class UnifiKidsCry {
                         .then(() => callback(null))
                         .catch((shit) => {
                             clazz.log(shit)
-                            service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                             callback(null)
                         })
                 } else if (value === Characteristic.LockCurrentState.UNSECURED) {
@@ -79,17 +79,17 @@ export class UnifiKidsCry {
                         .then(() => callback(null))
                         .catch((shit) => {
                             clazz.log(shit)
-                            service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                             callback(null)
                         })
                 } else {
                     clazz.log(`a lock state of ${value} was requested on mac ${mac} but this is unsupported`)
                     clazz.client.isBlocked(mac).then((current) =>{
-                        service.getCharacteristic(Characteristic.LockCurentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED);
+                        service.getCharacteristic(Characteristic.LockCurrentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED);
                         callback(null)
                     }).catch((shit) =>{
                         clazz.log(shit)
-                        service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                        service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                         callback(null, Characteristic.LockCurrentState.UNKNOWN)
 
                     })
