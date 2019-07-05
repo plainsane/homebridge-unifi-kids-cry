@@ -1,0 +1,23 @@
+{
+    "bridge": {
+        "name": "Homebridge",
+        "username": "DC:22:3D:E3:CE:30",
+        "port": 51826,
+        "pin": "031-45-154"
+    },
+    "platforms":[
+        {
+            "platform": "UnifiMacBlocker",
+            "base":"https://ftp:8443",
+            "username": "api",
+            "password": "****",
+            "site": "default",
+            "devices": [
+                {
+                     "name": "PS4",
+                     "mac": "00:00:00:00:00:00"
+                }
+            ]
+         }
+    ]
+}
