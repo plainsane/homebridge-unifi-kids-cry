@@ -57,9 +57,9 @@ export class UnifiKidsCry {
         newAccessory.reachable = true;
         newAccessory.getService(Service.AccessoryInformation)
             .setCharacteristic(Characteristic.SerialNumber, dev.mac);
-        newAccessory.getService(Service.LockManagement)
-            .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
         let service = newAccessory.addService(Service.LockMechanism, "network")
+        // newAccessory.addService(Service.LockManagement, 'access')
+        //     .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
         this.bindService(service, dev.mac)
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
         this.log(`added ${dev.name} at mac ${dev.mac}`)
