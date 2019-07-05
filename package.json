@@ -1,5 +1,5 @@
 {
-  "name": "homebridge-unifi-kids-cry",
+  "name": "homebridge-unifi-mac-block",
   "version": "1.0.1",
   "description": "",
   "main": "dist/index.js",
@@ -14,7 +14,7 @@
   ],
   "engines": {
     "node": ">=0.12.0",
-    "homebridge": ">=0.4.50"
+    "homebridge": ">=0.4.48"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
   "author": "ashley stovall",
   "license": "ISC",
   "dependencies": {
-    "homebridge": "^0.4.50",
+    "homebridge": "^0.4.48",
     "typed-rest-client": "^1.5.0"
   },
   "devDependencies": {

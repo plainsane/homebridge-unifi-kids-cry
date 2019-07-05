@@ -2,6 +2,8 @@ import {UBNTClient} from "./ubntClient";
 
 var Accessory, Service, Characteristic, UUIDGen;
 
+const moduleName = "homebridge-unifi-mac-block"
+const platformName = "UnifiMacBlocker"
 interface device {
     mac: string
     name: string
@@ -37,7 +39,7 @@ export class UnifiKidsCry {
         for(let acc of this.accessories) {
             if(config.devices.filter((d) => d.mac === acc.context.mac).length === 0) {
                 this.log(`removing ${acc.context.mac}`)
-                this.api.unregisterPlatformAccessories("homebridge-unifi-kids-cry", "UnifiMacBlocker", [acc]);
+                this.api.unregisterPlatformAccessories(moduleName, platformName, [acc]);
             }
         }
         //add the new hotness
@@ -55,9 +57,11 @@ export class UnifiKidsCry {
         newAccessory.reachable = true;
         newAccessory.getService(Service.AccessoryInformation)
             .setCharacteristic(Characteristic.SerialNumber, dev.mac);
+        newAccessory.getService(Service.LockManagement)
+            .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
         let service = newAccessory.addService(Service.LockMechanism, "network")
         this.bindService(service, dev.mac)
-        this.api.registerPlatformAccessories("homebridge-unifi-kids-cry", "UnifiMacBlocker", [newAccessory]);
+        this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
         this.log(`added ${dev.name} at mac ${dev.mac}`)
     }
 
@@ -125,7 +129,7 @@ module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
     UUIDGen = homebridge.hap.uuid;
-    homebridge.registerPlatform("homebridge-unifi-kids-cry", "UnifiMacBlocker", UnifiKidsCry, true);
+    homebridge.registerPlatform(moduleName, platformName, UnifiKidsCry, true);
 }
 
 
