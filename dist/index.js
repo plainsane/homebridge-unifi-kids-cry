@@ -12,7 +12,7 @@ class UnifiKidsCry {
         }
         this.log = log;
         this.api = api;
-        this.client = new ubntClient_1.UBNTClient(config.endpoint, config.site, config.username, config.password);
+        this.client = new ubntClient_1.UBNTClient(config.base, config.site, config.username, config.password);
         this.api.on('didFinishLaunching', () => this.finishedLoading(config));
     }
     configureAccessory(accessory) {
@@ -21,7 +21,6 @@ class UnifiKidsCry {
     }
     finishedLoading(config) {
         //now del the ole stale shit
-        console.log(JSON.stringify(this.accessories));
         for (let acc of this.accessories) {
             if (config.devices.filter((d) => d.mac === acc.context.mac).length === 0) {
                 this.log(`removing ${acc.context.mac}`);
@@ -82,7 +81,7 @@ class UnifiKidsCry {
             }
         });
         service.getCharacteristic(Characteristic.LockCurrentState)
-            .on('get', function (value, callback) {
+            .on('get', function (callback) {
             clazz.log("checking on some shit");
             clazz.client.isBlocked(mac).then((current) => {
                 clazz.log(`${mac} blocked ${current}`);
