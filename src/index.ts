@@ -31,7 +31,7 @@ export class UnifiKidsCry {
 
     configureAccessory(accessory) {
         this.accessories.push(accessory)
-        this.bindService(accessory.getService("network"), accessory.context.mac)
+        this.bindLockService(accessory.getService("network"), accessory.context.mac)
     }
 
     finishedLoading(config: config) {
@@ -57,15 +57,15 @@ export class UnifiKidsCry {
         newAccessory.reachable = true;
         newAccessory.getService(Service.AccessoryInformation)
             .setCharacteristic(Characteristic.SerialNumber, dev.mac);
-        let service = newAccessory.addService(Service.LockMechanism, "network")
-        // newAccessory.addService(Service.LockManagement, 'access')
-        //     .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
-        this.bindService(service, dev.mac)
+        let lockService = newAccessory.addService(Service.LockMechanism, "network")
+        newAccessory.addService(Service.LockManagement, 'admin')
+            .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
+        this.bindLockService(lockService, dev.mac)
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
         this.log(`added ${dev.name} at mac ${dev.mac}`)
     }
 
-    bindService(service, mac: string) {
+    bindLockService(service, mac: string) {
         let clazz = this
         service.getCharacteristic(Characteristic.LockTargetState)
             .on('set', function (value, callback) {
