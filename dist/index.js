@@ -50,18 +50,25 @@ class UnifiKidsCry {
         let clazz = this;
         service.getCharacteristic(Characteristic.LockTargetState)
             .on('set', function (value, callback) {
-            if (value === Characteristic.LockCurrentState.SECURED) {
+            clazz.log('now we are setting some shit');
+            if (value === Characteristic.LockTargetState.SECURED) {
                 clazz.client.blockMac(mac)
-                    .then(() => callback(null))
+                    .then(() => {
+                    service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockTargetState.SECURED);
+                    callback(null);
+                })
                     .catch((shit) => {
                     clazz.log(shit);
                     service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                     callback(null);
                 });
             }
-            else if (value === Characteristic.LockCurrentState.UNSECURED) {
+            else if (value === Characteristic.LockTargetState.UNSECURED) {
                 clazz.client.unblockMac(mac)
-                    .then(() => callback(null))
+                    .then(() => {
+                    service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockTargetState.UNSECURED);
+                    callback(null);
+                })
                     .catch((shit) => {
                     clazz.log(shit);
                     service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
@@ -71,6 +78,7 @@ class UnifiKidsCry {
             else {
                 clazz.log(`a lock state of ${value} was requested on mac ${mac} but this is unsupported`);
                 clazz.client.isBlocked(mac).then((current) => {
+                    clazz.log(`${mac} is in blocked state ${current}`);
                     service.getCharacteristic(Characteristic.LockCurrentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
                     callback(null);
                 }).catch((shit) => {
@@ -82,7 +90,6 @@ class UnifiKidsCry {
         });
         service.getCharacteristic(Characteristic.LockCurrentState)
             .on('get', function (callback) {
-            clazz.log("checking on some shit");
             clazz.client.isBlocked(mac).then((current) => {
                 clazz.log(`${mac} blocked ${current}`);
                 service.getCharacteristic(Characteristic.LockCurrentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
