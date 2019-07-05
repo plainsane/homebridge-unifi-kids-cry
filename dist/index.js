@@ -74,6 +74,7 @@ class UnifiKidsCry {
                     service.getCharacteristic(Characteristic.LockCurentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
                     callback(null);
                 }).catch((shit) => {
+                    this.log(shit);
                     service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                     callback(null, Characteristic.LockCurrentState.UNKNOWN);
                 });
@@ -86,6 +87,7 @@ class UnifiKidsCry {
                 service.getCharacteristic(Characteristic.LockCurentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
                 callback(null, current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
             }).catch((shit) => {
+                this.log(shit);
                 service.getCharacteristic(Characteristic.LockCurentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                 callback(null, Characteristic.LockCurrentState.UNKNOWN);
             });
