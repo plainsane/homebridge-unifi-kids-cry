@@ -1,14 +1,29 @@
-import * as ubnt from "ubntClient"
+import {UBNTClient} from "./ubntClient";
+import {UnifiKidsCry} from "./platform";
+
+var Accessory, Service, Characteristic, UUIDGen;
 
 async function doit() {
-    let client = ubnt.UBNTClient('https://ftp:8443', 'api', 'Plainsane8000')
-
-    let shitShit = await _rest.create("/api/s/default/cmd/stamgr/block-sta", mac, reqOpts)
-    console.log(JSON.stringify(shitShit))
-    await new Promise(resolve=>{
-        setTimeout(resolve,30000)
-    })
-    let shitShitShit = await _rest.create("/api/s/default/cmd/stamgr/unblock-sta", mac, reqOpts)
+    let client = new UBNTClient('https://ftp:8443', "default",'api', 'Plainsane8000')
+    let foo = await client.isBlocked("4c:bb:58:cd:5b:77")
+    console.log(JSON.stringify(foo))
+    //await client.blockMac("4c:bb:58:cd:5b:77")
+    //await client.unblockMac("4c:bb:58:cd:5b:77")
+    return undefined
 }
+
+module.exports = function(homebridge) {
+    console.log("homebridge API version: " + homebridge.version);
+
+    // Accessory must be created from PlatformAccessory Constructor
+    Accessory = homebridge.platformAccessory;
+
+    // Service and Characteristic are from hap-nodejs
+    Service = homebridge.hap.Service;
+    Characteristic = homebridge.hap.Characteristic;
+    UUIDGen = homebridge.hap.uuid;
+    homebridge.registerPlatform("homebridge-unifi-kids-cry", "UnifiMacBlocker", UnifiKidsCry, true);
+}
+
 
 doit()

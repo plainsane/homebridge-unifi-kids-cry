@@ -1,12 +1,5 @@
 import * as restm from 'typed-rest-client/RestClient';
-import {IHeaders, IRequestOptions} from "typed-rest-client/Interfaces";
-
-interface UBNTMeta {
-    rc: String
-    up: Boolean
-    server_version: String
-    uuid: String
-}
+import {IRequestOptions} from "typed-rest-client/Interfaces";
 
 interface UBNTLogin {
     username: String
@@ -17,24 +10,46 @@ interface UBNTMac {
     mac: String
 }
 
-
 const baseOpts:IRequestOptions = {
     ignoreSslError: true
 }
 
-
-class UBNTClient {
-    baseOpts:IRequestOptions
+export class UBNTClient {
     client:restm.RestClient
-    constructor(base: String, user:String, password:String){
-        this.baseOpts = {
-            ignoreSslError: true
+    auth: UBNTLogin
+    site: String
+    constructor(base: String, site:String, user:String, password:String) {
+        this.auth = {
+            username: user,
+            password: password
         }
-        this.client = new restm.RestClient('typed-rest-client-tests', 'https://ftp:8443', undefined, baseOpts);
-
+        this.site = site
+        this.client = new restm.RestClient('typed-rest-client-__tests__', base as string, undefined, baseOpts);
     }
 
-    async function login() {
+    async login() {
+        let resp = await this.client.create("/api/login", this.auth)
+        let cookies = resp.headers['set-cookie']
+        let reqOpts:restm.IRequestOptions = {
+            additionalHeaders:  {cookie: cookies}
+        }
+        return reqOpts
+    }
+    async blockMac(mac:String) {
+        let data:UBNTMac = {mac: mac}
+        let auth = await this.login()
+        return await this.client.create(`/api/s/${this.site}/cmd/stamgr/block-sta`, data, auth)
+    }
 
+    async unblockMac(mac:String) {
+        let data:UBNTMac = {mac: mac}
+        let auth = await this.login()
+        return await this.client.create(`/api/s/${this.site}/cmd/stamgr/unblock-sta`, data, auth)
+    }
+
+    async isBlocked(mac:String) {
+        let data:UBNTMac = {mac: mac}
+        let auth = await this.login()
+        return await this.client.update(`/api/s/${this.site}/stat/device`, data, auth)
     }
 }
