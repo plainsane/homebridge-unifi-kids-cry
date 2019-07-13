@@ -4,7 +4,7 @@ i originally named this repo cause my kids will sometimes act like anal crevises
 i have exposed the mac through homekit as a pad lock.
 
 ## Configuration
-A sample config is located in [homebridge/config.json] which can be used to specify the platform for this functionality.
+A sample config is located in [config.json](homebridge/config.json) which can be used to specify the platform for this functionality.
 ````json
   "base":"<the url to your unifi controller",
   "username": "<an admin user name>",
@@ -21,4 +21,4 @@ to install
 ```bash
 npm i -g homebridge-unifi-mac-block
 ```
-then update the homebridge config to include the platform definition shown in [homebridge/config.json].
+then update the homebridge config to include the platform definition shown in [config.json](homebridge/config.json).
