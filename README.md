@@ -12,7 +12,7 @@ A sample config is located in [config.json](homebridge/config.json) which can be
   "site": "<the uuid of the site or 'default'>",
   "devices": [
     {
-      "name": "<currently not used, sorry>",
+      "name": "<currently not impleted but required, sorry>",
       "mac": "00:00:00:00:00:00"
     }
   ]
