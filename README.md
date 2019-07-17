@@ -4,6 +4,8 @@ i originally named this repo cause my kids will sometimes act like anal crevises
 i have exposed the mac through homekit as a pad lock.
 
 ## Configuration
+Create a user in your unifi controller, it does not need the elevated permissions to manage devices.
+
 A sample config is located in [config.json](homebridge/config.json) which can be used to specify the platform for this functionality.
 ````json
   "base":"<the url to your unifi controller",
