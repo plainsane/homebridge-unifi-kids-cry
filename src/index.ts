@@ -77,11 +77,11 @@ export class UnifiKidsCry {
         newAccessory.getService(Service.AccessoryInformation)
             .setCharacteristic(Characteristic.SerialNumber, dev.mac);
         let lockService = newAccessory.addService(Service.LockMechanism, "network")
-        lockService.updating = false
         newAccessory.addService(Service.LockManagement, 'admin')
             .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
         this.bindLockService(lockService, dev.mac)
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
+        lockService.updating = false
         this.log(`added ${dev.name} at mac ${dev.mac}`)
     }
 
@@ -96,22 +96,26 @@ export class UnifiKidsCry {
                         .then(() => {
                             service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockTargetState.SECURED);
                             callback(null)
+                            service.updating = false
                         })
                         .catch((shit) => {
                             clazz.log(shit)
                             service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                             callback(null)
+                            service.updating = false
                         })
                 } else if (value === Characteristic.LockTargetState.UNSECURED) {
                     clazz.client.unblockMac(mac)
                         .then(() => {
                             service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockTargetState.UNSECURED);
                             callback(null)
+                            service.updating = false
                         })
                         .catch((shit) => {
                             clazz.log(shit)
                             service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                             callback(null)
+                            service.updating = false
                         })
                 } else {
                     clazz.log(`a lock state of ${value} was requested on mac ${mac} but this is unsupported`)
@@ -119,13 +123,14 @@ export class UnifiKidsCry {
                         clazz.log(`${mac} is in blocked state ${current}`)
                         service.getCharacteristic(Characteristic.LockCurrentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED);
                         callback(null)
+                        service.updating = false
                     }).catch((shit) =>{
                         clazz.log(shit)
                         service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                         callback(null, Characteristic.LockCurrentState.UNKNOWN)
+                        service.updating = false
                     })
                 }
-                service.updating = false
             })
         service.getCharacteristic(Characteristic.LockCurrentState)
             .on('get', function (callback) {
