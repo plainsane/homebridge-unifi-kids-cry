@@ -41,7 +41,9 @@ export class UnifiKidsCry {
         this.log(`fetching refreshments for ${mac}`)
         this.client.isBlocked(mac).then((current) =>{
             this.log(`on callback ${mac} blocked ${current}`)
-            service.setCharacteristic(Characteristic.LockCurrentState, current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED);
+            let value = current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED
+            service.setCharacteristic(Characteristic.LockCurrentState).updateValue(value);
+            service.getCharacteristic(Characteristic.LockTargetState).updateValue(value)
         }).catch((shit) =>{
             this.log(shit)
             service.setCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.UNKNOWN);
