@@ -90,46 +90,28 @@ export class UnifiKidsCry {
             .on('set', function (value, callback) {
                 service.updating = true
                 clazz.log('now we are setting some shit')
+                let result: Promise<boolean>
                 if (value === Characteristic.LockTargetState.SECURED) {
-                    clazz.client.blockMac(mac)
-                        .then(() => {
-                            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockTargetState.SECURED);
-                            callback(null)
-                            service.updating = false
-                        })
-                        .catch((shit) => {
-                            clazz.log(shit)
-                            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
-                            callback(null)
-                            service.updating = false
-                        })
+                    result = clazz.client.blockMac(mac).then((res)=> res === true ? Characteristic.LockTargetState.SECURED : Characteristic.LockTargetState.UNSECURED)
                 } else if (value === Characteristic.LockTargetState.UNSECURED) {
-                    clazz.client.unblockMac(mac)
-                        .then(() => {
-                            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockTargetState.UNSECURED);
-                            callback(null)
-                            service.updating = false
-                        })
-                        .catch((shit) => {
-                            clazz.log(shit)
-                            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
-                            callback(null)
-                            service.updating = false
-                        })
+                    result = clazz.client.unblockMac(mac).then((res) => res === true ? Characteristic.LockTargetState.UNSECURED : Characteristic.LockTargetState.SECURED)
                 } else {
-                    clazz.log(`a lock state of ${value} was requested on mac ${mac} but this is unsupported`)
-                    clazz.client.isBlocked(mac).then((current) =>{
+                    result = clazz.client.isBlocked(mac).then((current) => {
                         clazz.log(`${mac} is in blocked state ${current}`)
-                        service.getCharacteristic(Characteristic.LockCurrentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED);
-                        callback(null)
-                        service.updating = false
-                    }).catch((shit) =>{
-                        clazz.log(shit)
-                        service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
-                        callback(null, Characteristic.LockCurrentState.UNKNOWN)
-                        service.updating = false
+                        return (current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED)
                     })
                 }
+                result.then((want) => {
+                    service.getCharacteristic(Characteristic.LockCurrentState).updateValue(want);
+                    callback(null)
+                    service.updating = false
+                })
+                .catch((shit) => {
+                    clazz.log(shit)
+                    service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+                    callback(null)
+                    service.updating = false
+                })
             })
         service.getCharacteristic(Characteristic.LockCurrentState)
             .on('get', function (callback) {
