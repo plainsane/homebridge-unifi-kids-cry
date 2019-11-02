@@ -38,7 +38,7 @@ export class UnifiKidsCry {
     }
 
     refresh(mac: string, service: any) {
-        this.log(`fetching refreshments for ${mac} ${service.updating}`)
+        //this.log(`fetching refreshments for ${mac} ${service.updating}`)
         if(service.updating === false) {
             this.client.isBlocked(mac).then((current) => {
                 //this.log(`on callback ${mac} blocked ${current}`)
@@ -77,6 +77,7 @@ export class UnifiKidsCry {
         newAccessory.getService(Service.AccessoryInformation)
             .setCharacteristic(Characteristic.SerialNumber, dev.mac);
         let lockService = newAccessory.addService(Service.LockMechanism, "network")
+        lockService.updating = false
         newAccessory.addService(Service.LockManagement, 'admin')
             .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
         this.bindLockService(lockService, dev.mac)
