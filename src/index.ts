@@ -20,7 +20,7 @@ export class UnifiKidsCry {
     client: UBNTClient
     accessories: any[] = []
     refreshInterval: number
-    constructor(private log: (string) => void, config: config, private api: any) {
+    constructor(private readonly log: (string) => void, config: config, private api: any) {
         if (!config) {
             return
         }
@@ -78,7 +78,6 @@ export class UnifiKidsCry {
             .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
         this.bindLockService(lockService, dev.mac)
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
-        this.refresh(dev.mac, lockService)
         this.log(`added ${dev.name} at mac ${dev.mac}`)
     }
 
@@ -136,6 +135,7 @@ export class UnifiKidsCry {
 
                 })
             })
+        this.refresh(mac, service)
     }
 }
 
