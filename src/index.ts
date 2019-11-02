@@ -19,12 +19,15 @@ interface config {
 export class UnifiKidsCry {
     client: UBNTClient
     accessories: any[] = []
+    refreshInterval: number
     constructor(private log: (string) => void, config: config, private api: any) {
         if (!config) {
             return
         }
         this.log = log
         this.api = api
+        this.refreshInterval = config['refreshInterval'] || 5;
+        this.refreshInterval = this.refreshInterval * 1000;
         this.client = new UBNTClient(config.base, config.site, config.username, config.password)
         this.api.on('didFinishLaunching', () => this.finishedLoading(config))
     }
@@ -32,6 +35,19 @@ export class UnifiKidsCry {
     configureAccessory(accessory) {
         this.accessories.push(accessory)
         this.bindLockService(accessory.getService("network"), accessory.context.mac)
+    }
+
+    refresh(mac: string, service: any) {
+        this.log(`fetching refreshments for ${mac}`)
+        this.client.isBlocked(mac).then((current) =>{
+            this.log(`on callback ${mac} blocked ${current}`)
+            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED);
+        }).catch((shit) =>{
+            this.log(shit)
+            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+        })
+        setTimeout(() => this.refresh(mac, service), this.refreshInterval)
+
     }
 
     finishedLoading(config: config) {
@@ -52,7 +68,7 @@ export class UnifiKidsCry {
 
     createAccessory(dev:device) {
         let uuid = UUIDGen.generate(dev.mac);
-        var newAccessory = new Accessory(dev.mac, uuid);
+        const newAccessory = new Accessory(dev.mac, uuid);
         newAccessory.context.mac = dev.mac
         newAccessory.reachable = true;
         newAccessory.getService(Service.AccessoryInformation)
@@ -62,6 +78,7 @@ export class UnifiKidsCry {
             .setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
         this.bindLockService(lockService, dev.mac)
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
+        this.refresh(dev.mac, lockService)
         this.log(`added ${dev.name} at mac ${dev.mac}`)
     }
 
@@ -102,7 +119,6 @@ export class UnifiKidsCry {
                         clazz.log(shit)
                         service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                         callback(null, Characteristic.LockCurrentState.UNKNOWN)
-
                     })
                 }
 
