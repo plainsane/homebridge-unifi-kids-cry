@@ -42,7 +42,7 @@ export class UnifiKidsCry {
         this.client.isBlocked(mac).then((current) =>{
             this.log(`on callback ${mac} blocked ${current}`)
             let value = current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED
-            service.setCharacteristic(Characteristic.LockCurrentState).updateValue(value);
+            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(value);
             service.getCharacteristic(Characteristic.LockTargetState).updateValue(value)
         }).catch((shit) =>{
             this.log(shit)
