@@ -41,10 +41,10 @@ export class UnifiKidsCry {
         this.log(`fetching refreshments for ${mac}`)
         this.client.isBlocked(mac).then((current) =>{
             this.log(`on callback ${mac} blocked ${current}`)
-            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED);
+            service.setCharacteristic(Characteristic.LockCurrentState, current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED);
         }).catch((shit) =>{
             this.log(shit)
-            service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
+            service.setCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.UNKNOWN);
         })
         setTimeout(() => this.refresh(mac, service), this.refreshInterval)
 
