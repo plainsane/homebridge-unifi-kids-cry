@@ -38,7 +38,7 @@ export class UnifiKidsCry {
     }
 
     refresh(mac: string, service: any) {
-        this.log(`fetching refreshments for ${mac} ${service.updating}`)
+        //this.log(`fetching refreshments for ${mac} ${service.updating}`)
         if(!service.updating) {
             this.client.isBlocked(mac).then((current) => {
                 //this.log(`on callback ${mac} blocked ${current}`)
