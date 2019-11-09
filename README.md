@@ -11,7 +11,7 @@ A sample config is located in [config.json](homebridge/config.json) which can be
   "base":"<the url to your unifi controller",
   "username": "<an admin user name>",
   "password": "<duh>",
-  "refreshInterval": "<seconds to requery for state changes>"
+  "refreshInterval": "<seconds to requery for state changes, set to 0 if you dont want automatic polling>"
   "site": "<the uuid of the site or 'default'>",
   "devices": [
     {
