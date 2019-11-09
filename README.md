@@ -11,11 +11,11 @@ A sample config is located in [config.json](homebridge/config.json) which can be
   "base":"<the url to your unifi controller",
   "username": "<an admin user name>",
   "password": "<duh>",
-  "refreshInterval": "<seconds to requery for state changes>"
+  "refreshInterval": "<seconds to requery for state changes, remove if you dont want automatic polling>"
   "site": "<the uuid of the site or 'default'>",
   "devices": [
     {
-      "name": "<currently not impleted but required, sorry>",
+      "name": "<initial name in homekit>",
       "mac": "00:00:00:00:00:00"
     }
   ]

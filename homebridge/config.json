@@ -10,8 +10,9 @@
             "platform": "UnifiMacBlocker",
             "base":"https://ftp:8443",
             "username": "api",
-            "password": "****",
+            "password": "*****",
             "site": "default",
+            "refreshInterval": 5,
             "devices": [
                 {
                      "name": "PS4",
