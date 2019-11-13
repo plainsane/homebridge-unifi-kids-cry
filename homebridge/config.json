@@ -10,7 +10,7 @@
             "platform": "UnifiMacBlocker",
             "base":"https://ftp:8443",
             "username": "api",
-            "password": "*****",
+            "password": "Plainsane8000",
             "site": "default",
             "refreshInterval": 5,
             "devices": [

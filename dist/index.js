@@ -31,7 +31,9 @@ class UnifiKidsCry {
         }
         else {
             this.accessories.push(accessory);
+            accessory.getService("network").addLinkedService(accessory.getService("stuffs"));
             this.bindLockService(accessory.getService("network"), accessory.context.mac);
+            this.bindLockManagement(accessory.getService("stuffs"));
         }
     }
     manageState(service, value) {
@@ -74,8 +76,8 @@ class UnifiKidsCry {
     createAccessory(dev) {
         let uuid = UUIDGen.generate(dev.mac);
         const newAccessory = new Accessory(dev.mac, uuid);
+        newAccessory.updateReachability(true);
         newAccessory.context.mac = dev.mac;
-        newAccessory.reachable = true;
         newAccessory.getService(Service.AccessoryInformation)
             .setCharacteristic(Characteristic.SerialNumber, dev.mac)
             .setCharacteristic(Characteristic.Manufacturer, "tears incorporated");
@@ -84,13 +86,14 @@ class UnifiKidsCry {
         let management = newAccessory.addService(Service.LockManagement, "stuffs");
         this.bindLockManagement(management);
         this.bindLockService(lockService, dev.mac);
+        lockService.addLinkedService(management);
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
         this.log(`added ${dev.name} at mac ${dev.mac}`);
         this.accessories.push(newAccessory);
     }
     bindLockManagement(lock) {
         lock.setCharacteristic(Characteristic.AdministratorOnlyAccess, true);
-        lock.setCharacteristic(Characteristic.Version, "1.0");
+        lock.setCharacteristic(Characteristic.Version, "2.3");
         lock.getCharacteristic(Characteristic.LockControlPoint)
             .on('set', function (value, callback) {
             this.log(`lock control point has ${value}`);
@@ -115,6 +118,7 @@ class UnifiKidsCry {
         service.getCharacteristic(Characteristic.LockTargetState)
             .on('set', function (value, callback) {
             service.updating = true;
+            clazz.log(`${JSON.stringify(service)}`);
             let result;
             if (value === Characteristic.LockTargetState.SECURED) {
                 result = clazz.client.blockMac(mac).then((res) => res === true ? Characteristic.LockTargetState.SECURED : Characteristic.LockTargetState.UNSECURED);
