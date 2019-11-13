@@ -32,3 +32,5 @@ my authentication information to my local unifi.  I then run
 npm run homebridge
 ```
 which spools up homebridge using the local config file.  I then add the bridge to the test home so that i can get VERY heavy handed with development without tainting my beloved "home". 
+
+If you have any suggestions to make this easier, like a way to not contain the user/password in the config file, please send over a PR.
