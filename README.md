@@ -25,3 +25,10 @@ to install
 npm i -g homebridge-unifi-mac-block
 ```
 then update the homebridge config to include the platform definition shown in [config.json](homebridge/config.json).
+## Testing
+I test this module by creating a new test home in homeapp.  I then update the [config.json](homebridge/config.json) file to include 
+my authentication information to my local unifi.  I think run
+```shell script
+npm run homebridge
+```
+which spools up homebridge using the local config file.  I then add the bridge to the test home so that i can get VERY heavy handed with development without tainting my beloved "home". 
