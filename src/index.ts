@@ -89,7 +89,7 @@ export class UnifiKidsCry {
         //add the new hotness
         let config = new Map<String,device>()
         for(let dev of this.config.devices) {
-            config[dev.mac] = dev
+            config.set(dev.mac, dev)
         }
         this.accessories.forEach((t) => {
           let char = t.getService("network").getCharacteristic(Characteristic.LockTargetState);

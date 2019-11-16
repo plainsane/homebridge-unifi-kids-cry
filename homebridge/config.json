@@ -1,9 +1,9 @@
 {
     "bridge": {
         "name": "Homebridge",
-        "username": "DC:22:3D:E3:CE:30",
+        "username": "00:22:3D:E3:CE:30",
         "port": 51826,
-        "pin": "031-45-154"
+        "pin": "031-45-164"
     },
     "platforms":[
         {
@@ -16,7 +16,8 @@
             "devices": [
                 {
                      "name": "PS4",
-                     "mac": "00:00:00:00:00:00"
+                     "mac": "00:00:00:00:00:00",
+                    "adminControl": true
                 }
             ]
          }

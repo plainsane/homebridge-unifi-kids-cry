@@ -68,7 +68,7 @@ class UnifiKidsCry {
         //add the new hotness
         let config = new Map();
         for (let dev of this.config.devices) {
-            config[dev.mac] = dev;
+            config.set(dev.mac, dev);
         }
         this.accessories.forEach((t) => {
             let char = t.getService("network").getCharacteristic(hap_nodejs_1.Characteristic.LockTargetState);
