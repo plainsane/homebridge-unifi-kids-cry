@@ -16,7 +16,8 @@ A sample config is located in [config.json](homebridge/config.json) which can be
   "devices": [
     {
       "name": "<initial name in homekit>",
-      "mac": "00:00:00:00:00:00"
+      "mac": "00:00:00:00:00:00",
+      "adminControl": "<set to true if you want only home admins to control the locks"
     }
   ]
 ````
