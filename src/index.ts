@@ -1,12 +1,20 @@
 import {UBNTClient} from "./ubntClient";
-
-var Accessory, Service, Characteristic, UUIDGen;
+import {
+    Access,
+    Accessory,
+    Categories,
+    Characteristic,
+    CharacteristicEventTypes,
+    Service,
+    uuid as UUIDGen
+} from "hap-nodejs"
 
 const moduleName = "homebridge-unifi-mac-block"
 const platformName = "UnifiMacBlocker"
 interface device {
     mac: string
     name: string
+    adminControl: boolean|undefined
 }
 interface config {
     base: string
@@ -18,10 +26,11 @@ interface config {
 
 export class UnifiKidsCry {
     client: UBNTClient
-    accessories: any[] = []
+    accessories: Accessory[] = []
     refreshInterval: number
     config: config
-    deregister: device[] = []
+    deregister: Accessory[] = []
+    updating: Set<string> = new Set()
     constructor(private readonly log: (string) => void, config: config, private api: any) {
         if (!config) {
             return
@@ -36,20 +45,19 @@ export class UnifiKidsCry {
         this.api.on('didFinishLaunching', () => this.finishedLoading())
     }
 
-    configureAccessory(accessory) {
+    configureAccessory(accessory:Accessory) {
       //now del the ole stale shit
-      if(this.config.devices.filter((d) => d.mac === accessory.context.mac).length === 0) {
+      if(this.config.devices.filter((d) => d.mac === accessory.displayName).length === 0) {
         this.deregister.push(accessory)
-        this.log(`removing ${accessory.context.mac}`)
+        this.log(`removing ${accessory.displayName}`)
       } else {
           this.accessories.push(accessory)
-          this.bindLockService(accessory, accessory.getService("network"), accessory.context.mac)
-          this.bindLockManagement(accessory.getService("manage"))
+          this.bindLockService(accessory, accessory.getService("network"), accessory.displayName)
       }
     }
 
-    manageState(service, value){
-        if (!service.updating && service.getCharacteristic(Characteristic.LockTargetState).value != value) {
+    manageState(service:Service, value:number){
+        if (!this.updating.has(service.UUID) && service.getCharacteristic(Characteristic.LockTargetState).value != value) {
           //we need to get out of our handler and rebroadcast since it is possible this value went out a few millis ago but was incorrect
             //basically, someone switches the value in unifi conftroller then we connect to view the device.
           setTimeout(() => service.getCharacteristic(Characteristic.LockTargetState).updateValue(value), 1000)
@@ -57,13 +65,13 @@ export class UnifiKidsCry {
         service.getCharacteristic(Characteristic.LockCurrentState).updateValue(value);
     }
 
-    refresh(mac: string, service: any) {
+    refresh(mac: string, service: Service) {
         if(this.refreshInterval === 0) return
         //this.log(`fetching refreshments for ${mac} ${service.updating}`)
         try {
             this.client.isBlocked(mac).then((current) => {
                 //this.log(`on callback ${mac} blocked ${current}`)
-                let value = current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED
+                let value = current === true ? Characteristic.LockCurrentState.SECURED: Characteristic.LockCurrentState.UNSECURED
                 this.manageState(service, value)
             }).catch((shit) => {
                 this.log(shit)
@@ -79,10 +87,20 @@ export class UnifiKidsCry {
         this.api.unregisterPlatformAccessories(moduleName, platformName, this.deregister);
         this.deregister = []
         //add the new hotness
+        let config = new Map<String,device>()
         for(let dev of this.config.devices) {
-            if(this.accessories.filter((t) => t.context.mac === dev.mac).length === 0){
-                this.createAccessory(dev)
-            }
+            config[dev.mac] = dev
+        }
+        this.accessories.forEach((t) => {
+          let char = t.getService("network").getCharacteristic(Characteristic.LockTargetState);
+          if(config.get(t.displayName).adminControl === true) {
+              char.accessRestrictedToAdmins = [Access.WRITE]
+          }
+          config.delete(t.displayName)
+        })
+
+        for(let dev of config.values()) {
+          this.createAccessory(dev)
         }
     }
 
@@ -90,55 +108,28 @@ export class UnifiKidsCry {
         let uuid = UUIDGen.generate(dev.mac);
         const newAccessory = new Accessory(dev.mac, uuid);
         newAccessory.updateReachability(true)
-        newAccessory.context.mac = dev.mac
-        newAccessory.category = 6 //advertise ourself as a lock
+        newAccessory.category = Categories.DOOR_LOCK //advertise ourself as a lock
         newAccessory.getService(Service.AccessoryInformation)
             .setCharacteristic(Characteristic.SerialNumber, dev.mac)
             .setCharacteristic(Characteristic.Manufacturer, "tears incorporated");
         let lockService = newAccessory.addService(Service.LockMechanism, "network")
             .setCharacteristic(Characteristic.Name, dev.name)
-        let management = newAccessory.addService(Service.LockManagement, "manage");
-        this.bindLockManagement(management)
         this.bindLockService(newAccessory, lockService, dev.mac)
         lockService.isPrimaryService = true
-        lockService.addLinkedService(management)
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
         this.log(`added ${dev.name} at mac ${dev.mac}`)
         this.accessories.push(newAccessory)
     }
 
-    bindLockManagement(lock) {
-        lock.setCharacteristic(Characteristic.AdministratorOnlyAccess, true)
-        lock.setCharacteristic(Characteristic.Version, "1.0")
-        lock.getCharacteristic(Characteristic.LockControlPoint)
-            .on('set', function(value, callback) {
-                this.log(`lock control point has ${value}`)
-                callback()
-            })
-            .on('get', function(callback){
-                this.log(`lock control point get`)
-                callback("")
-            })
-        lock.getCharacteristic(Characteristic.AdministratorOnlyAccess)
-            .on('set', function(value, callback) {
-                this.log(`lock admin has ${value}`)
-                callback()
-            })
-            .on('get', function(callback){
-                this.log(`lock admin get`)
-                callback(true)
-            })
-    }
-
-    bindLockService(accessory, service, mac: string) {
-        let clazz = this
+    bindLockService(accessory:Accessory, service:Service, mac: string) {
+        let clazz = this;
         service.getCharacteristic(Characteristic.LockTargetState)
-            .on('set', function (value, callback) {
-                service.updating = true
-                clazz.log(`${JSON.stringify(accessory)}`)
-                let result: Promise<boolean>
+            .on(CharacteristicEventTypes.SET, function (value, callback) {
+                clazz.updating.add(service.UUID)
+                let result: Promise<0|1>
                 if (value === Characteristic.LockTargetState.SECURED) {
                     result = clazz.client.blockMac(mac).then((res)=> res === true ? Characteristic.LockTargetState.SECURED : Characteristic.LockTargetState.UNSECURED)
+                    let thing = clazz.client.blockMac(mac).then((res)=> res === true ? Characteristic.LockTargetState.SECURED : Characteristic.LockTargetState.UNSECURED)
                 } else if (value === Characteristic.LockTargetState.UNSECURED) {
                     result = clazz.client.unblockMac(mac).then((res) => res === true ? Characteristic.LockTargetState.UNSECURED : Characteristic.LockTargetState.SECURED)
                 } else {
@@ -150,17 +141,17 @@ export class UnifiKidsCry {
                 result.then((want) => {
                     service.getCharacteristic(Characteristic.LockCurrentState).updateValue(want);
                     callback(null)
-                    service.updating = false
+                    clazz.updating.delete(service.UUID)
                 })
                 .catch((shit) => {
                     clazz.log(shit)
                     service.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNKNOWN);
                     callback(null)
-                    service.updating = false
+                    clazz.updating.delete(service.UUID)
                 })
             })
         service.getCharacteristic(Characteristic.LockCurrentState)
-            .on('get', function (callback) {
+            .on(CharacteristicEventTypes.GET, function (callback) {
                 clazz.client.isBlocked(mac).then((current) =>{
                     clazz.log(`${mac} blocked ${current}`)
                     let value = current === true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED
@@ -178,11 +169,6 @@ export class UnifiKidsCry {
 }
 
 module.exports = function(homebridge) {
-    Accessory = homebridge.platformAccessory;
-
-    Service = homebridge.hap.Service;
-    Characteristic = homebridge.hap.Characteristic;
-    UUIDGen = homebridge.hap.uuid;
     homebridge.registerPlatform(moduleName, platformName, UnifiKidsCry, true);
 }
 

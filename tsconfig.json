@@ -3,9 +3,19 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es6",
-    "lib": ["es6"],
+    "lib": [
+      "es2015",
+      "es2016",
+      "es2017",
+      "es2018"
+
+    ],
+    "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "esModuleInterop": true
   },
   "exclude": [
     "node_modules"
