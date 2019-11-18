@@ -35,3 +35,14 @@ npm run homebridge
 which spools up homebridge using the local config file.  I then add the bridge to the test home so that i can get VERY heavy handed with development without tainting my beloved "home". 
 
 If you have any suggestions to make this easier, like a way to not contain the user/password in the config file, please send over a PR.
+
+### Testing The admin control
+If you want to test this branch which has admin control, you can do it by adjusting the run-local command.  That dumb command
+assumes that you have checked this repo out into the same directory that holds your homebridge config.  Personally i would
+set this up in its own directory because i found i had to prune my pairing configurations for it to properly work, A.K.A, 
+delete the persist and accessory directory.  Ill have to dig into this a touch later to see what is up.
+Remeber, run 
+```shell script
+npm i
+```
+after checkout
