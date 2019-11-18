@@ -4,6 +4,7 @@ const ubntClient_1 = require("./ubntClient");
 const hap_nodejs_1 = require("hap-nodejs");
 const moduleName = "homebridge-unifi-mac-block";
 const platformName = "UnifiMacBlocker";
+var Accessory;
 class UnifiKidsCry {
     constructor(log, config, api) {
         this.log = log;
@@ -32,7 +33,7 @@ class UnifiKidsCry {
         }
         else {
             this.accessories.push(accessory);
-            this.bindLockService(accessory, accessory.getService("network"), accessory.displayName);
+            this.bindLockService(accessory.getService("network"), accessory.displayName);
         }
     }
     manageState(service, value) {
@@ -83,21 +84,19 @@ class UnifiKidsCry {
     }
     createAccessory(dev) {
         let uuid = hap_nodejs_1.uuid.generate(dev.mac);
-        const newAccessory = new hap_nodejs_1.Accessory(dev.mac, uuid);
-        newAccessory.updateReachability(true);
-        newAccessory.category = hap_nodejs_1.Categories.DOOR_LOCK; //advertise ourself as a lock
+        const newAccessory = new Accessory(dev.mac, uuid, hap_nodejs_1.Categories.DOOR_LOCK); //advertise ourself as a lock
         newAccessory.getService(hap_nodejs_1.Service.AccessoryInformation)
             .setCharacteristic(hap_nodejs_1.Characteristic.SerialNumber, dev.mac)
             .setCharacteristic(hap_nodejs_1.Characteristic.Manufacturer, "tears incorporated");
         let lockService = newAccessory.addService(hap_nodejs_1.Service.LockMechanism, "network")
             .setCharacteristic(hap_nodejs_1.Characteristic.Name, dev.name);
-        this.bindLockService(newAccessory, lockService, dev.mac);
+        this.bindLockService(lockService, dev.mac);
         lockService.isPrimaryService = true;
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
         this.log(`added ${dev.name} at mac ${dev.mac}`);
         this.accessories.push(newAccessory);
     }
-    bindLockService(accessory, service, mac) {
+    bindLockService(service, mac) {
         let clazz = this;
         service.getCharacteristic(hap_nodejs_1.Characteristic.LockTargetState)
             .on(hap_nodejs_1.CharacteristicEventTypes.SET, function (value, callback) {
@@ -146,6 +145,7 @@ class UnifiKidsCry {
 }
 exports.UnifiKidsCry = UnifiKidsCry;
 module.exports = function (homebridge) {
+    Accessory = homebridge.platformAccessory;
     homebridge.registerPlatform(moduleName, platformName, UnifiKidsCry, true);
 };
 //# sourceMappingURL=index.js.map

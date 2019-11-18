@@ -1,16 +1,15 @@
 import {UBNTClient} from "./ubntClient";
 import {
     Access,
-    Accessory,
     Categories,
     Characteristic,
     CharacteristicEventTypes,
     Service,
     uuid as UUIDGen
 } from "hap-nodejs"
-
 const moduleName = "homebridge-unifi-mac-block"
 const platformName = "UnifiMacBlocker"
+var Accessory;
 interface device {
     mac: string
     name: string
@@ -26,10 +25,10 @@ interface config {
 
 export class UnifiKidsCry {
     client: UBNTClient
-    accessories: Accessory[] = []
+    accessories: any[] = []
     refreshInterval: number
     config: config
-    deregister: Accessory[] = []
+    deregister: any[] = []
     updating: Set<string> = new Set()
     constructor(private readonly log: (string) => void, config: config, private api: any) {
         if (!config) {
@@ -45,14 +44,14 @@ export class UnifiKidsCry {
         this.api.on('didFinishLaunching', () => this.finishedLoading())
     }
 
-    configureAccessory(accessory:Accessory) {
+    configureAccessory(accessory:any) {
       //now del the ole stale shit
       if(this.config.devices.filter((d) => d.mac === accessory.displayName).length === 0) {
         this.deregister.push(accessory)
         this.log(`removing ${accessory.displayName}`)
       } else {
           this.accessories.push(accessory)
-          this.bindLockService(accessory, accessory.getService("network"), accessory.displayName)
+          this.bindLockService(accessory.getService("network"), accessory.displayName)
       }
     }
 
@@ -106,22 +105,20 @@ export class UnifiKidsCry {
 
     createAccessory(dev:device) {
         let uuid = UUIDGen.generate(dev.mac);
-        const newAccessory = new Accessory(dev.mac, uuid);
-        newAccessory.updateReachability(true)
-        newAccessory.category = Categories.DOOR_LOCK //advertise ourself as a lock
+        const newAccessory = new Accessory(dev.mac, uuid, Categories.DOOR_LOCK);//advertise ourself as a lock
         newAccessory.getService(Service.AccessoryInformation)
             .setCharacteristic(Characteristic.SerialNumber, dev.mac)
             .setCharacteristic(Characteristic.Manufacturer, "tears incorporated");
         let lockService = newAccessory.addService(Service.LockMechanism, "network")
             .setCharacteristic(Characteristic.Name, dev.name)
-        this.bindLockService(newAccessory, lockService, dev.mac)
+        this.bindLockService(lockService, dev.mac)
         lockService.isPrimaryService = true
         this.api.registerPlatformAccessories(moduleName, platformName, [newAccessory]);
         this.log(`added ${dev.name} at mac ${dev.mac}`)
         this.accessories.push(newAccessory)
     }
 
-    bindLockService(accessory:Accessory, service:Service, mac: string) {
+    bindLockService(service:Service, mac: string) {
         let clazz = this;
         service.getCharacteristic(Characteristic.LockTargetState)
             .on(CharacteristicEventTypes.SET, function (value, callback) {
@@ -169,6 +166,7 @@ export class UnifiKidsCry {
 }
 
 module.exports = function(homebridge) {
+    Accessory = homebridge.platformAccessory;
     homebridge.registerPlatform(moduleName, platformName, UnifiKidsCry, true);
 }
 

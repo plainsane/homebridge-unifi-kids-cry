@@ -1,5 +1,5 @@
 import { UBNTClient } from "./ubntClient";
-import { Accessory, Service } from "hap-nodejs";
+import { Service } from "hap-nodejs";
 interface device {
     mac: string;
     name: string;
@@ -16,18 +16,18 @@ export declare class UnifiKidsCry {
     private readonly log;
     private api;
     client: UBNTClient;
-    accessories: Accessory[];
+    accessories: any[];
     refreshInterval: number;
     config: config;
-    deregister: Accessory[];
+    deregister: any[];
     updating: Set<string>;
     constructor(log: (string: any) => void, config: config, api: any);
-    configureAccessory(accessory: Accessory): void;
+    configureAccessory(accessory: any): void;
     manageState(service: Service, value: number): void;
     refresh(mac: string, service: Service): void;
     finishedLoading(): void;
     createAccessory(dev: device): void;
-    bindLockService(accessory: Accessory, service: Service, mac: string): void;
+    bindLockService(service: Service, mac: string): void;
 }
 export {};
 //# sourceMappingURL=index.d.ts.map
