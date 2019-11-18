@@ -92,7 +92,8 @@ export class UnifiKidsCry {
         }
         this.accessories.forEach((t) => {
           let char = t.getService("network").getCharacteristic(Characteristic.LockTargetState);
-          if(config.get(t.displayName).adminControl === true) {
+	  if(config.get(t.displayName).adminControl === true) {
+	  this.log("setting admin only")
               char.accessRestrictedToAdmins = [Access.WRITE]
           }
           config.delete(t.displayName)

@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node_modules/typescript/bin/tsc",
     "clean": "rimraf dist",
-    "homebridge": "npm run build && node_modules/homebridge/bin/homebridge -U homebridge --plugin-path ."
+    "homebridge": "npm run build && node_modules/homebridge/bin/homebridge -U homebridge --plugin-path .",
+    "run-local": "node_modules/homebridge/bin/homebridge -U ../ --plugin-path ."
   },
   "keywords": [
     "homebridge-plugin"

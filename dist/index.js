@@ -74,6 +74,7 @@ class UnifiKidsCry {
         this.accessories.forEach((t) => {
             let char = t.getService("network").getCharacteristic(hap_nodejs_1.Characteristic.LockTargetState);
             if (config.get(t.displayName).adminControl === true) {
+                this.log("setting admin only");
                 char.accessRestrictedToAdmins = [hap_nodejs_1.Access.WRITE];
             }
             config.delete(t.displayName);
