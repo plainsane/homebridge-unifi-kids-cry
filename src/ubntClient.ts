@@ -49,20 +49,20 @@ export class UBNTClient {
     async blockMac(mac:String):Promise<boolean> {
         let data:UBNTMac = {mac: mac}
         let auth = await this.login()
-        let res = await this.client.create(`${this.unifios ? "/network/proxy" : ""}/api/s/${this.site}/cmd/stamgr/block-sta`, data, auth)
+        let res = await this.client.create(`${this.unifios ? "/proxy/network" : ""}/api/s/${this.site}/cmd/stamgr/block-sta`, data, auth)
         return res.statusCode === 200
     }
 
     async unblockMac(mac:String):Promise<boolean> {
         let data:UBNTMac = {mac: mac}
         let auth = await this.login()
-        let res = await this.client.create(`${this.unifios ? "/network/proxy" : ""}/api/s/${this.site}/cmd/stamgr/unblock-sta`, data, auth)
+        let res = await this.client.create(`${this.unifios ? "/proxy/network" : ""}/api/s/${this.site}/cmd/stamgr/unblock-sta`, data, auth)
         return res.statusCode === 200
     }
 
     async isBlocked(mac:String):Promise<boolean> {
         let auth = await this.login()
-        let ret = await this.client.get<UBNTClientResponse>(`${this.unifios ? "/network/proxy" : ""}/api/s/${this.site}/stat/user/${mac}`, auth)
+        let ret = await this.client.get<UBNTClientResponse>(`${this.unifios ? "/proxy/network" : ""}/api/s/${this.site}/stat/user/${mac}`, auth)
         return ret.result.data[0].blocked
     }
 }

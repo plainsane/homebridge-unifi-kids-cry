@@ -38,7 +38,7 @@ class UBNTClient {
         return __awaiter(this, void 0, void 0, function* () {
             let data = { mac: mac };
             let auth = yield this.login();
-            let res = yield this.client.create(`${this.unifios ? "/network/proxy" : ""}/api/s/${this.site}/cmd/stamgr/block-sta`, data, auth);
+            let res = yield this.client.create(`${this.unifios ? "/proxy/network" : ""}/api/s/${this.site}/cmd/stamgr/block-sta`, data, auth);
             return res.statusCode === 200;
         });
     }
@@ -46,14 +46,14 @@ class UBNTClient {
         return __awaiter(this, void 0, void 0, function* () {
             let data = { mac: mac };
             let auth = yield this.login();
-            let res = yield this.client.create(`${this.unifios ? "/network/proxy" : ""}/api/s/${this.site}/cmd/stamgr/unblock-sta`, data, auth);
+            let res = yield this.client.create(`${this.unifios ? "/proxy/network" : ""}/api/s/${this.site}/cmd/stamgr/unblock-sta`, data, auth);
             return res.statusCode === 200;
         });
     }
     isBlocked(mac) {
         return __awaiter(this, void 0, void 0, function* () {
             let auth = yield this.login();
-            let ret = yield this.client.get(`${this.unifios ? "/network/proxy" : ""}/api/s/${this.site}/stat/user/${mac}`, auth);
+            let ret = yield this.client.get(`${this.unifios ? "/proxy/network" : ""}/api/s/${this.site}/stat/user/${mac}`, auth);
             return ret.result.data[0].blocked;
         });
     }
