@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.UnifiKidsCry = void 0;
 const ubntClient_1 = require("./ubntClient");
 var Accessory, Service, Characteristic, UUIDGen;
 const moduleName = "homebridge-unifi-mac-block";
@@ -20,7 +21,7 @@ class UnifiKidsCry {
         if (this.refreshInterval === undefined)
             this.refreshInterval = 0;
         this.refreshInterval = this.refreshInterval * 1000;
-        this.client = new ubntClient_1.UBNTClient(config.base, config.site, config.username, config.password);
+        this.client = new ubntClient_1.UBNTClient(config.base, config.site, config.unifios, config.username, config.password);
         this.api.on('didFinishLaunching', () => this.finishedLoading());
     }
     configureAccessory(accessory) {
