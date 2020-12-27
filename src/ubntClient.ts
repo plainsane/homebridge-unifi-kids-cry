@@ -41,8 +41,12 @@ export class UBNTClient {
     async login() {
         let resp = await this.client.create(this.unifios ? "/api/auth/login" : "/api/login", this.auth)
         let cookies = resp.headers['set-cookie']
+        let csrfToken = resp.headers['x-csrf-token']
         let reqOpts:restm.IRequestOptions = {
-            additionalHeaders:  {cookie: cookies}
+            additionalHeaders:  {
+              cookie: cookies,
+              'x-csrf-token': csrfToken,
+            }
         }
         return reqOpts
     }

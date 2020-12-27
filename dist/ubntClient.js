@@ -28,8 +28,12 @@ class UBNTClient {
         return __awaiter(this, void 0, void 0, function* () {
             let resp = yield this.client.create(this.unifios ? "/api/auth/login" : "/api/login", this.auth);
             let cookies = resp.headers['set-cookie'];
+            let csrfToken = resp.headers['x-csrf-token'];
             let reqOpts = {
-                additionalHeaders: { cookie: cookies }
+                additionalHeaders: {
+                    cookie: cookies,
+                    'x-csrf-token': csrfToken,
+                }
             };
             return reqOpts;
         });
