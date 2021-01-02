@@ -23,12 +23,10 @@
   "author": "ashley stovall",
   "license": "ISC",
   "dependencies": {
-    "homebridge": "^0.4.48",
-    "typed-rest-client": "^1.5.0"
+    "typed-rest-client": "^1.8.0"
   },
   "devDependencies": {
-    "hap-nodejs": "^0.4.52",
-    "@types/node": "8.0.14",
-    "typescript": "^3.5.2"
+    "@types/node": "14.14.14",
+    "typescript": "^3.9.7"
   }
 }

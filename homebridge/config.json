@@ -12,6 +12,7 @@
             "username": "api",
             "password": "*****",
             "site": "default",
+            "unifios": false,
             "refreshInterval": 5,
             "devices": [
                 {
