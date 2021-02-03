@@ -1,6 +1,6 @@
 # homebridge-unifi-mac-block
 ## The name
-i originally named this repo cause my kids will sometimes act like anal crevises which would force me to block their playstations in my unifi controller.  The progressed to my wife calling me to do this during the day.  Well no more
+i originally named this repo cause my kids will sometimes act like anal crevices which would force me to block their playstations in my unifi controller.  The progressed to my wife calling me to do this during the day.  Well no more
 i have exposed the mac through homekit as a pad lock.
 
 ## Configuration
