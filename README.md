@@ -13,6 +13,7 @@ A sample config is located in [config.json](homebridge/config.json) which can be
   "password": "<duh>",
   "refreshInterval": "<seconds to requery for state changes, remove if you dont want automatic polling>"
   "site": "<the uuid of the site or 'default'>",
+  "unifios": false,
   "devices": [
     {
       "name": "<initial name in homekit>",

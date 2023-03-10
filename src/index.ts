@@ -11,6 +11,7 @@ interface device {
 interface config {
     base: string
     site: string
+    unifios: boolean
     username: string
     password: string
     devices: device[]
@@ -32,7 +33,7 @@ export class UnifiKidsCry {
         this.refreshInterval = config['refreshInterval'];
         if(this.refreshInterval === undefined) this.refreshInterval = 0
         this.refreshInterval = this.refreshInterval * 1000;
-        this.client = new UBNTClient(config.base, config.site, config.username, config.password)
+        this.client = new UBNTClient(config.base, config.site, config.unifios, config.username, config.password)
         this.api.on('didFinishLaunching', () => this.finishedLoading())
     }
 
